@@ -54,8 +54,8 @@ if __name__ == '__main__':
     o = OptionParser()
     o.set_usage('%prog [options] IMAGE_DIRECTORY/IMAGE')
     o.set_description(__doc__)
-    o.add_option('--dbfile', dest='dbfile', default='imgLabel2.pkl',
-        help='CSV file of image labels, default: imgLabel2.pkl')
+    o.add_option('--dbfile', dest='dbfile', default='imgLabel.pkl',
+        help='CSV file of image labels, default: imgLabel.pkl')
     o.add_option('-e', '--ext', dest='ext', default='png',
         help='Image extension to label, default: png')
     o.add_option('-i', '--index', dest='index', default=0, type='int',
