@@ -8,8 +8,12 @@ import sys,os
 import numpy as np
 import cPickle as pickle
 
-import dedispersion # https://fornax.phys.unm.edu/lwa/trac/browser/trunk/lsl/lsl/misc/dedispersion.py
-import filterbankio # extracted from https://github.com/UCBerkeleySETI/filterbank
+#import dedispersion # https://fornax.phys.unm.edu/lwa/trac/browser/trunk/lsl/lsl/misc/dedispersion.py
+#import filterbankio # extracted from https://github.com/UCBerkeleySETI/filterbank
+SOURCE_PATH = '/data2/griffin/ALFABURST/pulseClassifier/src/'
+import imp
+dedispersion = imp.load_source('dedispersion', SOURCE_PATH + 'dedispersion.py')
+filterbankio = imp.load_source('filterbankio', SOURCE_PATH + 'filterbankio.py')
 
 ## Check if $DISPLAY is set (for handling plotting on remote machines with no X-forwarding)
 #if os.environ.has_key('DISPLAY'):
