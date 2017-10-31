@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#-h help options
 
 """
 Dedisperse a filterbank file. Generate figures and/or time series (.tim) file
