@@ -1,0 +1,103 @@
+## Check if $DISPLAY is set (for handling plotting on remote machines with no X-forwarding)
+#if os.environ.has_key('DISPLAY'):
+#    import matplotlib.pyplot as plt
+#else:
+#    import matplotlib
+#    matplotlib.use('Agg')
+#    import matplotlib.pyplot as plt
+
+
+
+#if you've given a meta value, retrieve previous values, otherwise create an empty dictionary
+#    if not (opts.meta is None):
+#        try:
+#            metaData = pickle.load(open(opts.meta, "rb"))
+#            break
+#            except IOError:
+#               metaData={}
+#               pickle.dump(metaData, open(opts.meta, "wb"))               
+#    else:
+#        metaData = {}
+
+
+## Select time subsets to plot and save to file
+    #if opts.start_time is None:
+    #    startIdx = 0
+    #else:
+    #    startIdx = int(opts.start_time / tInt)
+    #    if startIdx > waterfall.shape[0]:
+    #        print 'Error: start time (-s) is beyond the maximum time (%f s) of the filterbank, exiting'%(waterfall.shape[0] * tInt)
+    #        exit()
+
+    #if opts.time_window is None:
+    #    endIdx = waterfall.shape[0]
+    #else:
+    #    endIdx = startIdx + int(opts.time_window / tInt)
+    #    if endIdx > waterfall.shape[0]:
+    #        print 'Warning: time window (-w) in conjunction with start time (-s) results in a window extending beyond the filterbank file, clipping to maximum size'
+    #        endIdx = waterfall.shape[0]
+    
+    
+        
+        #Kolmogorov-Smirnov test of how close to normal dist it is
+        #np.random.seed(420)
+        #normal = np.random.normal(loc=arrMean, scale =std, size = arr.size)
+        #ks = scipy.stats.kstest(arr, 'norm') #unsure how to give dist im testing against an SD and mean? it doesn't fit automatically check test notebook
+        #ksD = ks[0] #maxdistance between cumulative reference distribution and cumulative data points
+        #ksp = ks[1] #probability that distribution is perfectly normal
+    
+    
+    """def globalStatsHalf(arr):
+        #Global Statistics of an array when bottom half has been mirrored to top half
+       
+        #calculate old mean for use to find number of positive points above it
+        mean = arr.mean()
+        median = np.median(arr)
+        
+        arrnegidx = np.argwhere(arr < median.)
+        arrless = arr[arrlowidx]
+        arrmore = - arr[arrlowidx]
+        arrfull = np.concatenate((arrless, arrmore))
+        
+        #redo global stats for new array
+        arrMean = arrfull.mean()
+        arrMedian = np.median(arrfull)
+        std = arrfull.std()
+        nPosCount = arrfull[arrfull > mean].size
+        nNegCount = arrfull[arrfull < mean].size #useful as some RFI have a lot of values below the 'baseline'
+        nPosPct = nPosCount / float(arrfull.size)
+        nNegPct = nNegCount / float(arrfull.size)
+        if np.isclose(arrMedian, 0.): meanMedianRatio = 0.
+        else: meanMedianRatio = np.abs(arrMean / arrMedian)
+        
+        #Kolmogorov-Smirnov test (how Gaussian the dist is)
+        np.random.seed(420)
+        ks = scipy.stats.kstest(arr, 'norm') #check if i need to add N=arr.size (dont think so because 1st arg is an array)
+        ksD = ks[0] #maxdistance between cumulative reference distribution and cumulative data points
+        ksp = ks[1] #probability that distribution is perfectly normal
+        
+        return { 'mean': arrMean, 'median': arrMedian, 'std': std, 'min': arr.min(), 'max': arr.max(),
+                 'meanMedianRatio': meanMedianRatio, 'maxMinRatio': np.abs(arr.max() / arr.min()),
+                 'posCount': nPosCount, 'negCount': nNegCount, 'posPct': nPosPct, 'negPct': nNegPct, 'ksD': ksD, 'ksp': ksp}
+                                                    
+    metaData['globalhalfTimeStats'] = globalStatsHalf(timeSeries)
+    metaData['globalhalfDedispTimeStats'] = globalStatsHalf(ddTimeSeries)
+    
+    
+    globalhalfstats = metaData['globalhalfTimeStats']
+    ddglobalhalfstats = metaData['globalhalfDedispTimeStats']
+    
+    globalstats = metaData['globalTimeStats']
+    ddglobalstats = metaData['globalDedispTimeStats']
+    
+    diffkeys = { 'mean': 0, 'median': 0, 'std': 0, 'max': 0, 'posCount': 0, 'ksD': 0, 'ksp': 0}
+    
+    
+    #this is a bit unecessary, most values are meaningless
+    #calculate difference between global values for mirrored and unmirrored distributions
+    #positive value gives indication of non gaussian behaviour in upper half of intensity data (possible pulsar peak)
+    metaData['globaldiffpct'] = {key: float((globalstats[key] - globalhalfstats.get(key, 0))/globalstats[key]) for key in diffkeys.keys() if globalstats[key] != 0}
+    metaData['ddglobaldiffpct'] = {key: float((ddglobalstats[key] - ddglobalhalfstats.get(key, 0))/ddglobalstats[key]) for key in diffkeys.keys() if ddglobalstats[key] != 0}"""
+    
+    
+    
