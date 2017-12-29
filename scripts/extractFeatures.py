@@ -10,9 +10,9 @@ import cPickle as pickle
 import scipy
 from scipy import stats
 from scipy.stats import kstest
-import statsmodels
+"""import statsmodels
 from statsmodels import stats
-from statsmodels.stats import diagnostic
+from statsmodels.stats import diagnostic"""
 
 
 #import dedispersion # https://fornax.phys.unm.edu/lwa/trac/browser/trunk/lsl/lsl/misc/dedispersion.py
@@ -74,14 +74,20 @@ if __name__ == '__main__': #if this is being run as the main program (ie. not ca
     timeSeries = np.sum(waterfall, axis=1)
     #timeSeries = timeSeries[startIdx:endIdx]
         
+#    if not (opts.meta is None):
+#        if os.path.isfile(opts.meta) == True:
+#            metaData = pickle.load(open(opts.meta, "rb"))
+#        #else:
+#            #metaData = {}
+#            #pickle.dump(metaData, open(opts.meta, "wb"))
+#    else:
+#            metaData = {}
+            
+    
     if not (opts.meta is None):
-        if os.path.isfile(opts.meta) == True:
-            metaData = pickle.load(open(opts.meta, "rb"))
-        else:
-            metaData = {}
-            pickle.dump(metaData, open(opts.meta, "wb"))
+        metaData = pickle.load(open(opts.meta, "rb"))
     else:
-            metaData = {}
+        metaData = {}
 
             
     #######################
@@ -120,17 +126,18 @@ if __name__ == '__main__': #if this is being run as the main program (ie. not ca
         dpearsonomni = dpearson[0]
         dpearsonp = dpearson[1]
         
-        lilliefors = statsmodels.stats.diagnostic.kstest_normal(arr, pvalmethod='approx') #Lilliefors test (KS test but with estimated mean and variance, only useful for p<0.2 or boolean for p>0.2
-        lsD = lilliefors[0]
-        lsp = lilliefors[1]
+        #lilliefors = statsmodels.stats.diagnostic.kstest_normal(arr, pvalmethod='approx') #Lilliefors test (KS test but with estimated mean and variance, only useful for p<0.2 or boolean for p>0.2
+        #lsD = lilliefors[0]
+        #lsp = lilliefors[1]
      
         #KS test uses 0 mean and 1 variance, data is already roughly centered around 0, so need to recenter distribution and make variance 1. Is this not using a circular argument as i must assume normal dist to calculate variance??
         arrnorm = (arr-arr.mean())/arr.std()
         ks = scipy.stats.kstest(arrnorm,'norm')
                                 
-        return { 'kurtosis': kurtosis, 'skew': skew, 'dpearsonomni': dpearsonomni, 'dpearsonp': dpearsonp, 'lsD': lsD, 'lsp': lsp, 'ks': ks }
+        return { 'kurtosis': kurtosis, 'skew': skew, 'dpearsonomni': dpearsonomni, 'dpearsonp': dpearsonp, """'lsD': lsD, 'lsp': lsp,""" 'ks': ks }
     
     metaData['GaussianTests'] = GaussianTests(timeSeries)
+    metaData['ddGaussianTests'] = GaussianTests(ddTimeSeries)
     
     def segGaussianTests(arr):
         #splits segments into ~max pulsar pulse width (not sure what this actually is? related to dm but how, intrinsic width must also play a part?)
@@ -140,30 +147,31 @@ if __name__ == '__main__': #if this is being run as the main program (ie. not ca
 
         #takes sidth segment and assigns value for that segment to sidth element of value array
         #put KS testing in here too?
-        lfpsum = 0
-        lfpmax = 0
-        lfDmax = 0
-        lfDmin = 1
+        #lfpsum = 0
+        #lfpmax = 0
+        #lfDmax = 0
+        #lfDmin = 1
         for sid in np.arange(nseg):
             segarr = arr[segSize*sid:segSize*(sid+1)]
             dpearson[sid] = np.asarray(scipy.stats.normaltest(segarr))
-            lilliefors = np.asarray(statsmodels.stats.diagnostic.kstest_normal(segarr, pvalmethod='approx')) #can you store arrays inside arrays?
+            """lilliefors = np.asarray(statsmodels.stats.diagnostic.kstest_normal(segarr, pvalmethod='approx')) #can you store arrays inside arrays?
             if lilliefors[1] > 0.1:
-                lfpsum += 1
+                lfpsum += 1 #total number of segments with p>0.1
             if lilliefors[1] > lfpmax:
                 lfpmax= lilliefors[1]
             if lilliefors[0] > lfDmax:
                 lfDmax = lilliefors[0]
             if lilliefors[0] < lfDmin:
-                lfDmin = lilliefors[0]
+                lfDmin = lilliefors[0]"""
                                 
         dpearsonsum = np.sum(dpearson, axis=0)
         dpearsonomnisum = dpearsonsum[0]
         dpearsonpsum = dpearsonsum[1]
     
-        return { 'lillieforsmaxp': lfpmax, 'lillieforsmaxD': lfDmax, 'lfDmin': lfDmin, 'lillieforssum': lfpsum, 'dpearson': dpearson, 'dpearsonomnisum': dpearsonomnisum, 'dpearsonpsum': dpearsonpsum}
+        return { """'lillieforsmaxp': lfpmax, 'lillieforsmaxD': lfDmax, 'lfDmin': lfDmin, 'lillieforssum': lfpsum,""" 'dpearson': dpearson, 'dpearsonomnisum': dpearsonomnisum, 'dpearsonpsum': dpearsonpsum}
     
     metaData['segGaussianTests'] = segGaussianTests(timeSeries)
+    metaData['ddsegGaussianTests'] = segGaussianTests(ddTimeSeries)
     
     def windowedStats(arr, nseg=16):
         """Statistics on segments of an array"""
@@ -234,12 +242,6 @@ if __name__ == '__main__': #if this is being run as the main program (ie. not ca
                     ddmaxVal = int(ddarr[idx-1])
                 else:
                     currentRun = 1
-         
-        """if ddmaxRun == maxRun:
-            phpeak = True
-        else:
-            phpeak = False"""
-        
      
         return { 'maxRun': maxRun, 'maxVal': maxVal, 'maxRunpct': maxRun / float(arr.size), 'ddmaxRun': ddmaxRun, 'ddmaxVal': ddmaxVal}
     
@@ -273,10 +275,25 @@ if __name__ == '__main__': #if this is being run as the main program (ie. not ca
 
     metaData['pixels'] = pixelizeSpectrogram(waterfall)
     
+    def EigenpulseMetrics(arr):
+        eigenpulse = np.load('/home/inigo/pulseClassifier/notebooks/eigenpulse.npy')
+        #print 'eigenpulse has shape:' + str(eigenpulse.shape)
+        #print 'dedispersed time series has shape:' + str(arr.shape)
+        if: eigenpulse.shape == arr.shape:
+            arr = np.sort(arr)
+            D = abs((eigenpulse - arr))
+        else:
+            D = arr.shape
+        
+        return {'D': D}
     
-
+    metaData['EigenpulseMetrics'] = EigenpulseMetrics(ddTimeSeries)
+    
+    
     if not (opts.meta is None):
-        pickle.dump(metaData, open(opts.meta, "wb")) #saves the metadata dictionary file as .pkl
-    """else:
-        print metaData;"""
+        output = open(opts.meta, "wb")
+        pickle.dump(metaData, output)
+        output.close()#saves the metadata dictionary file as .pkl
+    else:
+        print metaData;
 
