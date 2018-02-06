@@ -206,30 +206,30 @@ if __name__ == '__main__': #if this is being run as the main program (ie. not ca
             if np.isclose(stdVals[sid], 0): snrVals[sid] = 0.
             else: snrVals[sid] = maxVals[sid] / stdVals[sid]
                 
-        minsum = np.sum(minVals)
-        minmin = np.amin(minVals)
-        maxmin = np.amax(minVals)
-        rangemin = maxmin-minmin
+        minsum = np.sum(minVals)/np.median(minVals)
+        minmin = np.amin(minVals)/np.median(minVals)
+        maxmin = np.amax(minVals)/np.median(minVals)
+        rangemin = (maxmin-minmin)/np.median(minVals)
         
-        maxsum = np.sum(maxVals)
-        minmax = np.amin(maxVals)
-        maxmax = np.amax(maxVals)
-        rangemax = maxmax-minmax
+        maxsum = np.sum(maxVals)/np.median(maxVals)
+        minmax = np.amin(maxVals/np.median(maxVals)
+        maxmax = np.amax(maxVals)/np.median(maxVals)
+        rangemax = (maxmax-minmax)/np.median(maxVals)
         
-        minmean = np.amin(meanVals)
-        maxmean = np.amax(meanVals)
-        meansum = np.sum(meanVals)
-        rangemean = maxmean-minmean
+        minmean = np.amin(meanVals)/np.median(meanVals)
+        maxmean = np.amax(meanVals)/np.median(meanVals)
+        meansum = np.sum(meanVals)/np.median(meanVals)
+        rangemean = (maxmean-minmean)/np.median(meanVals)
         
-        minstd = np.amin(stdVals)
-        maxstd = np.amax(stdVals)
-        meastd = np.sum(stdVals)
-        rangestd = maxstd-minstd
+        minstd = np.amin(stdVals)/np.median(stdVals)
+        maxstd = np.amax(stdVals)/np.median(stdVals)
+        meastd = np.sum(stdVals)/np.median(stdVals)
+        rangestd = (maxstd-minstd)/np.median(stdVals)
         
-        minsnr = np.amin(snrVals)
-        maxsnr = np.amax(snrVals)
-        meansnr = np.sum(snrVals)
-        rangesnr = maxsnr-minsnr
+        minsnr = np.amin(snrVals)/np.median(snrVals)
+        maxsnr = np.amax(snrVals)/np.median(snrVals)
+        meansnr = np.sum(snrVals)/np.median(snrVals)
+        rangesnr = (maxsnr-minsnr)/np.median(snrVals)
         
         
         return { 'min': minVals, 'max': maxVals, 'mean': meanVals, 'std': stdVals, 'snr': snrVals, 'minsum' : minsum, 'minmin' : minmin, 'maxmin' : maxmin, 'rangemin' = rangemin, 'maxsum' : maxsum, 'minmax' : minmax, 'maxmax' : maxmax, 'rangemax' : rangemax,  'meansum': meansum, 'minmean' : minmean, 'maxmean' : maxmean, 'rangemean' = rangemean }
