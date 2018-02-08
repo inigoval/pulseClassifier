@@ -70,7 +70,7 @@ if __name__ == '__main__':
         imgDir = os.path.join(args[0], '')
         # get list of images in directory
         print 'Labels for images in directory:', imgDir
-        imgFiles = sorted(glob.glob(imgDir + '*.' + opts.ext))
+        imgFiles = sorted(glob.glob(imgDir + '*.' + opts.ext)) #change this for priority Q
     else:
         imgFiles = args
 

@@ -333,6 +333,7 @@ if __name__ == '__main__': #if this is being run as the main program (ie. not ca
     
     def EigenpulseMetrics(arr):
         eigenpulse = np.load('./eigenpulse.npy')
+        eigenpulse = 
         #print 'eigenpulse has shape:' + str(eigenpulse.shape)
         #print 'dedispersed time series has shape:' + str(arr.shape)
         if: eigenpulse.shape == arr.shape:
