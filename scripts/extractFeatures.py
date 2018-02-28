@@ -334,7 +334,15 @@ if __name__ == '__main__': #if this is being run as the main program (ie. not ca
 
     metaData['pixels'] = pixelizeSpectrogram(waterfall)
     
-    def AveragePulseMetrics(arr):
+    def AveragePulseMetrics(ddarr):
+        slicepulse=np.load('/home/inigo/slicepulse.npy')
+        argmax = np.argmax(ddarr)
+            ddarrslice = ddar[argmax-2050:argmax+2050]
+            if ddarslice.shape == slicepulse:
+                corrarr = np.correlate(slicepulse, ddarrslice)
+            else: corrarr = -1
+        
+        """TOO COMPUTATIONALLY INTENSIVE, REPLACED WITH CROSS CORRELATION OF IMPORTANT SEGMENT OF TIME SERIES
         avgpulse = np.load('/home/inigo/eigenpulse.npy')
         #print 'eigenpulse has shape:' + str(eigenpulse.shape)
         #print 'dedispersed time series has shape:' + str(arr.shape)
@@ -346,9 +354,9 @@ if __name__ == '__main__': #if this is being run as the main program (ie. not ca
         else:
             D = arr.shape
             Dmax = -1
-            Dsum = -1
+            Dsum = -1"""
         
-        return {'D': D, 'Dmax' : Dmax, 'Dsum' : Dsum }
+        return {"""'D': D, 'Dmax' : Dmax, 'Dsum' : Dsum""" 'corrarr':corrarr }
     
     metaData['AveragePulseMetrics'] = AveragePulseMetrics(ddTimeSeries)
     
