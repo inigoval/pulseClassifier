@@ -206,30 +206,30 @@ if __name__ == '__main__': #if this is being run as the main program (ie. not ca
             if np.isclose(stdVals[sid], 0): snrVals[sid] = 0.
             else: snrVals[sid] = maxVals[sid] / stdVals[sid]
                 
-        minsum = np.sum(minVals)/np.median(minVals)
-        minmin = np.amin(minVals)/np.median(minVals)
-        maxmin = np.amax(minVals)/np.median(minVals)
-        rangemin = (maxmin-minmin)/np.median(minVals)
+        minsum = np.sum(minVals)
+        minmin = np.amin(minVals)
+        maxmin = np.amax(minVals)
+        rangemin = (maxmin-minmin)
         
-        maxsum = np.sum(maxVals)/np.median(maxVals)
-        minmax = np.amin(maxVals)/np.median(maxVals)
-        maxmax = np.amax(maxVals)/np.median(maxVals)
-        rangemax = (maxmax-minmax)/np.median(maxVals)
+        maxsum = np.sum(maxVals)
+        minmax = np.amin(maxVals)
+        maxmax = np.amax(maxVals)
+        rangemax = (maxmax-minmax)
         
-        minmean = np.amin(meanVals)/np.median(meanVals)
-        maxmean = np.amax(meanVals)/np.median(meanVals)
-        meansum = np.sum(meanVals)/np.median(meanVals)
-        rangemean = (maxmean-minmean)/np.median(meanVals)
+        minmean = np.amin(meanVals)
+        maxmean = np.amax(meanVals)
+        meansum = np.sum(meanVals)
+        rangemean = (maxmean-minmean)
         
-        minstd = np.amin(stdVals)/np.median(stdVals)
-        maxstd = np.amax(stdVals)/np.median(stdVals)
-        meanstd = np.sum(stdVals)/np.median(stdVals)
-        rangestd = (maxstd-minstd)/np.median(stdVals)
+        minstd = np.amin(stdVals)
+        maxstd = np.amax(stdVals)
+        meanstd = np.sum(stdVals)
+        rangestd = (maxstd-minstd)
         
-        minsnr = np.amin(snrVals)/np.median(snrVals)
-        maxsnr = np.amax(snrVals)/np.median(snrVals)
-        meansnr = np.sum(snrVals)/np.median(snrVals)
-        rangesnr = (maxsnr-minsnr)/np.median(snrVals)
+        minsnr = np.amin(snrVals)
+        maxsnr = np.amax(snrVals)
+        meansnr = np.sum(snrVals)
+        rangesnr = (maxsnr-minsnr)
         
         
         return { 'min': minVals, 'max': maxVals, 'mean': meanVals, 'std': stdVals, 'snr': snrVals, 'minsum' : minsum, 'minmin' : minmin, 'maxmin' : maxmin, 'rangemin' : rangemin, 'maxsum' : maxsum, 'minmax' : minmax, 'maxmax' : maxmax, 'rangemax' : rangemax,  'meansum': meansum, 'minmean' : minmean, 'maxmean' : maxmean, 'rangemean' : rangemean, 'minsnr':minsnr, 'maxsnr':maxsnr, 'meansnr':meansnr, 'rangesnr':rangesnr }
@@ -254,7 +254,7 @@ if __name__ == '__main__': #if this is being run as the main program (ie. not ca
 
  
     def longestRun(arr, ddarr):
-        """Longest run of a constant value in a 1-D array, check for a phantom peak and return its indices"""
+        """Longest run of a constant value in a 1-D array"""
         maxRun = 1
         maxVal = -1.
         currentRun = 1
