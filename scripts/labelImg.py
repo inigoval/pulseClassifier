@@ -151,7 +151,8 @@ if __name__ == '__main__':
         elif ch=='n': # go to next image
             if idx+1==nfiles: idx = 0 
             else: idx += 1
-            print idx, imgFiles[idx]
+            print idx, 
+            [idx]
             img = mpimg.imread(imgFiles[idx])
             plt.cla()
             plt.imshow(img)

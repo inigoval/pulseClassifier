@@ -86,7 +86,7 @@ if __name__ == '__main__':
             plt.pause(0.01)
 
             #Ask for classification
-            print 'Input class number:'
+            print 'Input class number (if you are not sure, press a LETTER and the label will remain unchanged:'
             ch = getchar()
 
             #If valid class is given, move row to end of priority queue with label in place
