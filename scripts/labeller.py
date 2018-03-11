@@ -2,6 +2,7 @@ import sys,os
 import glob
 import pandas as pd
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 plt.switch_backend('agg')
 import matplotlib.image as mpimg
@@ -86,7 +87,7 @@ if __name__ == '__main__':
             plt.pause(0.01)
 
             #Ask for classification
-            print 'Input class number (if you are not sure, press a LETTER and the label will remain unchanged:'
+            print 'Input class number (if you are not sure, press a LETTER and the label will remain unchanged):'
             ch = getchar()
 
             #If valid class is given, move row to end of priority queue with label in place

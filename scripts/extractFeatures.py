@@ -6,6 +6,7 @@ Feature Extraction Script
 
 import sys,os
 import numpy as np
+import numpy.fft
 import cPickle as pickle
 import scipy
 from scipy import stats
@@ -13,6 +14,7 @@ from scipy.stats import kstest
 import statsmodels
 from statsmodels import stats
 from statsmodels.stats import diagnostic
+import scipy.optimize
 
 
 #import dedispersion # https://fornax.phys.unm.edu/lwa/trac/browser/trunk/lsl/lsl/misc/dedispersion.py
@@ -181,7 +183,7 @@ if __name__ == '__main__': #if this is being run as the main program (ie. not ca
         dpearsonomnisum = dpearsonsum[0]
         dpearsonpsum = dpearsonsum[1]
     
-        return { 'lillieforsmaxp': lfpmax, 'lillieforsmaxD': lfDmax, 'lfDmin': lfDmin, 'lillieforssum': lfpsum, 'dpearson': dpearson, 'dpearsonomnisum': dpearsonomnisum, 'dpearsonpsum': dpearsonpsum, 'swpsum' : swpsum, 'swasum' : swasum}
+        return { 'lillieforsmaxp': lfpmax, 'lillieforsmaxD': lfDmax, 'lfDmin': lfDmin, 'lillieforssum': lfpsum, 'dpearsonomnisum': dpearsonomnisum, 'dpearsonpsum': dpearsonpsum, 'swpsum' : swpsum, 'swasum' : swasum}
     
     metaData['segGaussianTests'] = segGaussianTests(timeSeries)
     metaData['ddsegGaussianTests'] = segGaussianTests(ddTimeSeries)
@@ -208,31 +210,26 @@ if __name__ == '__main__': #if this is being run as the main program (ie. not ca
                 
         minsum = np.sum(minVals)
         minmin = np.amin(minVals)
-        maxmin = np.amax(minVals)
-        rangemin = (maxmin-minmin)
+        minmax = np.amax(minVals)
         
         maxsum = np.sum(maxVals)
-        minmax = np.amin(maxVals)
+        maxmin = np.amin(maxVals)
         maxmax = np.amax(maxVals)
-        rangemax = (maxmax-minmax)
         
-        minmean = np.amin(meanVals)
-        maxmean = np.amax(meanVals)
+        meanmin = np.amin(meanVals)
+        meanmax = np.amax(meanVals)
         meansum = np.sum(meanVals)
-        rangemean = (maxmean-minmean)
         
-        minstd = np.amin(stdVals)
-        maxstd = np.amax(stdVals)
-        meanstd = np.sum(stdVals)
-        rangestd = (maxstd-minstd)
+        stdmin = np.amin(stdVals)
+        stdmax = np.amax(stdVals)
+        stdmean = np.sum(stdVals)
         
-        minsnr = np.amin(snrVals)
-        maxsnr = np.amax(snrVals)
-        meansnr = np.sum(snrVals)
-        rangesnr = (maxsnr-minsnr)
+        snrmin = np.amin(snrVals)
+        snrmax = np.amax(snrVals)
+        snrmean = np.sum(snrVals)
         
         
-        return { 'min': minVals, 'max': maxVals, 'mean': meanVals, 'std': stdVals, 'snr': snrVals, 'minsum' : minsum, 'minmin' : minmin, 'maxmin' : maxmin, 'rangemin' : rangemin, 'maxsum' : maxsum, 'minmax' : minmax, 'maxmax' : maxmax, 'rangemax' : rangemax,  'meansum': meansum, 'minmean' : minmean, 'maxmean' : maxmean, 'rangemean' : rangemean, 'minsnr':minsnr, 'maxsnr':maxsnr, 'meansnr':meansnr, 'rangesnr':rangesnr }
+        return { 'min': minVals, 'max': maxVals, 'mean': meanVals, 'std': stdVals, 'snr': snrVals, 'minsum' : minsum, 'minmin' : minmin, 'minmax':minmax, 'maxsum':maxsum, 'maxmin':maxmin, 'maxmax':maxmax, 'meanmin':meanmin, 'meanmax':meanmax, 'meansum':meansum, 'stdmin':stdmin, 'stdmax':stdmax, 'stdmean':stdmean, 'snrmin':snrmin, 'snrmax':snrmax, 'snrmean':snrmean }
 
     metaData['windTimeStats'] = windowedStats(timeSeries)
     metaData['windDedispTimeStats'] = windowedStats(ddTimeSeries)
@@ -314,33 +311,60 @@ if __name__ == '__main__': #if this is being run as the main program (ie. not ca
         minmedian = np.median(minVals)
         minsum = np.sum(minVals)
         minmin = np.amin(minVals)
-        maxmin = np.amax(minVals)
-        rangemin = (maxmin-minmin)
+        minmax = np.amax(minVals)
         
         maxmedian = np.median(maxVals)
         maxsum = np.sum(maxVals)
-        minmax = np.amin(maxVals)
+        maxmin = np.amin(maxVals)
         maxmax = np.amax(maxVals)
-        rangemax = (maxmax-minmax)
         
         meanmedian = np.median(meanVals)
-        minmean = np.amin(meanVals)
-        maxmean = np.amax(meanVals)
+        meanmin = np.amin(meanVals)
+        meanmax = np.amax(meanVals)
         meansum = np.sum(meanVals)
-        rangemean = (maxmean-minmean)
         
         
-        return { 'min': minVals, 'max': maxVals, 'mean': meanVals, 'minsum' : minsum, 'minmin' : minmin, 'maxmin' : maxmin, 'rangemin' : rangemin, 'maxsum' : maxsum, 'minmax' : minmax, 'maxmax' : maxmax, 'rangemax' : rangemax,  'meansum': meansum, 'minmean' : minmean, 'maxmean' : maxmean, 'rangemean' : rangemean, 'minmedian':minmedian, 'maxmedian':maxmedian, 'meanmedian':meanmedian}
+        return { 'min': minVals, 'max': maxVals, 'mean': meanVals, 'minmedian':minmedian, 'minsum':minsum, 'minmin':minmin, 'minmax':minmax, 'maxmedian':maxmedian, 'maxsum':maxsum, 'maxmin':maxmin, 'maxmax':maxmax, 'meanmedian':meanmedian, 'meanmin':meamin, 'meanmax':meanmax, 'meansum':meansum}
 
     metaData['pixels'] = pixelizeSpectrogram(waterfall)
     
+    def LargeVals(ddarr):
+        arrmax = np.amax(ddarr)
+        idxmax = argwhere(ddarr > 0.1*arrmax)
+        largerange = np.amax(idxmax) - np.amin(idxmax)
+        largecount = idxmax.flatten().size
+        
+        return {'largerange':largerange, 'largecount':largecount}
+        
+            
     def AveragePulseMetrics(ddarr):
-        slicepulse=np.load('/home/inigo/slicepulse.npy')
+        corridx = np.zeros(5)
+        corrvals = np.zeros(5)
+        corrvalmax = 0
+        corrvalmin = 0
+        corrvalmean = 0
+        corridxmax = 0
+        corridxmin = 0
+        corridxmean = 0
+        
+        slicepulseft = np.load('/home/inigo/slicepulseft.npy')
         argmax = np.argmax(ddarr)
-            ddarrslice = ddar[argmax-2050:argmax+2050]
+            ddarrslice = ddarr[argmax-2050:argmax+2050]
             if ddarslice.shape == slicepulse:
-                corrarr = np.correlate(slicepulse, ddarrslice)
-            else: corrarr = -1
+                ddarrft = np.fft.fft(ddarr)
+                corr = np.fft.ifft(ddarrft*slicepulseft)
+                for i in range(5):
+                    corridx[i] = np.argmax(corr)
+                    corrvals[i] = np.amax(corr)
+                    corr(corridx[i]) = 0
+                
+                corrvalmax = np.amax(corrvals)
+                corrvalmin = np.amin(corrvals)
+                corrvalmean = np.median(corrvals)
+                
+                corridxmax = np.amax(corridx)
+                corridxmin = np.amin(corridx)
+                corridxmean = np.median(corridx)
         
         """TOO COMPUTATIONALLY INTENSIVE, REPLACED WITH CROSS CORRELATION OF IMPORTANT SEGMENT OF TIME SERIES
         avgpulse = np.load('/home/inigo/eigenpulse.npy')
@@ -356,15 +380,47 @@ if __name__ == '__main__': #if this is being run as the main program (ie. not ca
             Dmax = -1
             Dsum = -1"""
         
-        return {"""'D': D, 'Dmax' : Dmax, 'Dsum' : Dsum""" 'corrarr':corrarr }
+        return {'corridxmax':corridxmax, 'corridxmin':corridxmin, 'corridxmean':corridxmean, 'corrvalmax': corrvalmax, 'corrvalmin':corrvalmin, 'corrvalmean':corrvalmean }
     
     metaData['AveragePulseMetrics'] = AveragePulseMetrics(ddTimeSeries)
     
     
+        
+    def SineFit(arr)        
+        
+        t = np.arange(arr)
+        y = arr
+        '''Fit sin to the input time sequence, and return fitting parameters "amp", "omega", "phase", "offset", "freq", "period" and "fitfunc"'''
+        #Discrete Fourier transform:
+        ft = np.fft.fftfreq(len(tt), (tt[1]-tt[0]))
+        
+        Fy = abs(np.fft.fft(y))
+
+        #Educated guess parameters:
+        guess_freq = abs(ft[np.argmax(Fy[1:])+1])
+        guess_amp = np.std(y) * 2.**0.5
+        guess_offset = np.mean(y)            
+        guess = np.array([guess_amp, 2.*np.pi*guess_freq, 0., guess_offset])
+
+        def sinfunc(t, A, w, p, c):  
+            return A * numpy.sin(w*t + p) + c
+
+        popt, pcov = scipy.optimize.curve_fit(sinfunc, t, y, p0=guess)
+        A, w, p, c = popt
+        fitfunc = lambda t: A * numpy.sin(w*t + p) + c        
+        f = w/(2.*numpy.pi)
+
+        chisq = (arr - fitfunc(np.arange(arr)**2)/fitfunc(np.arange(arr))
+            
+    return {'amp': A, 'frequency': f, 'phase': p, 'offset': c, 'period': 1./f, 'maxcov': np.max(pcov), 'chisq':chisq}
+                 
+    metaData['SineFit'] = SineFit[arr]
+             
+                                               
     if not (opts.meta is None):
         output = open(opts.meta, "wb")
         pickle.dump(metaData, output)
-        output.close()#saves the metadata dictionary file as .pkl
+        output.close()
     else:
         print metaData;
 
