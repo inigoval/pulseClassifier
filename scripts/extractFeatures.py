@@ -131,17 +131,13 @@ if __name__ == '__main__': #if this is being run as the main program (ie. not ca
         lilliefors = statsmodels.stats.diagnostic.kstest_normal(arr, pvalmethod='approx') #Lilliefors test (KS test but with estimated mean and variance, only useful for p<0.2 or boolean for p>0.2
         lsD = lilliefors[0]
         lsp = lilliefors[1]
-     
-        #KS test uses 0 mean and 1 variance, data is already roughly centered around 0, so need to recenter distribution and make variance 1. Is this not using a circular argument as i must assume normal dist to calculate variance??
-        arrnorm = (arr-arr.mean())/arr.std()
-        ks = scipy.stats.kstest(arrnorm,'norm')
-        
+             
         #Shapiro-Wilks Test
         sw = scipy.stats.shapiro(arr)
         swp = sw[0]
         swa = sw[1]
                                 
-        return { 'kurtosis': kurtosis, 'skew': skew, 'dpearsonomni': dpearsonomni, 'dpearsonp': dpearsonp, 'lsD': lsD, 'lsp': lsp, 'ks': ks, 'swp' : swp, 'swa' : swa }
+        return { 'kurtosis': kurtosis, 'skew': skew, 'dpearsonomni': dpearsonomni, 'dpearsonp': dpearsonp, 'lsD': lsD, 'lsp': lsp, 'swp' : swp, 'swa' : swa }
     
     metaData['GaussianTests'] = GaussianTests(timeSeries)
     metaData['ddGaussianTests'] = GaussianTests(ddTimeSeries)
@@ -229,7 +225,7 @@ if __name__ == '__main__': #if this is being run as the main program (ie. not ca
         snrmean = np.sum(snrVals)
         
         
-        return { 'min': minVals, 'max': maxVals, 'mean': meanVals, 'std': stdVals, 'snr': snrVals, 'minsum' : minsum, 'minmin' : minmin, 'minmax':minmax, 'maxsum':maxsum, 'maxmin':maxmin, 'maxmax':maxmax, 'meanmin':meanmin, 'meanmax':meanmax, 'meansum':meansum, 'stdmin':stdmin, 'stdmax':stdmax, 'stdmean':stdmean, 'snrmin':snrmin, 'snrmax':snrmax, 'snrmean':snrmean }
+        return { 'windmin': minVals, 'windmax': maxVals, 'windmean': meanVals, 'windstd': stdVals, 'windsnr': snrVals, 'minsum' : minsum, 'minmin' : minmin, 'minmax':minmax, 'maxsum':maxsum, 'maxmin':maxmin, 'maxmax':maxmax, 'meanmin':meanmin, 'meanmax':meanmax, 'meansum':meansum, 'stdmin':stdmin, 'stdmax':stdmax, 'stdmean':stdmean, 'snrmin':snrmin, 'snrmax':snrmax, 'snrmean':snrmean }
 
     metaData['windTimeStats'] = windowedStats(timeSeries)
     metaData['windDedispTimeStats'] = windowedStats(ddTimeSeries)
@@ -324,17 +320,19 @@ if __name__ == '__main__': #if this is being run as the main program (ie. not ca
         meansum = np.sum(meanVals)
         
         
-        return { 'min': minVals, 'max': maxVals, 'mean': meanVals, 'minmedian':minmedian, 'minsum':minsum, 'minmin':minmin, 'minmax':minmax, 'maxmedian':maxmedian, 'maxsum':maxsum, 'maxmin':maxmin, 'maxmax':maxmax, 'meanmedian':meanmedian, 'meanmin':meamin, 'meanmax':meanmax, 'meansum':meansum}
+        return { 'min': minVals, 'max': maxVals, 'mean': meanVals, 'minmedian':minmedian, 'minsum':minsum, 'minmin':minmin, 'minmax':minmax, 'maxmedian':maxmedian, 'maxsum':maxsum, 'maxmin':maxmin, 'maxmax':maxmax, 'meanmedian':meanmedian, 'meanmin':meanmin, 'meanmax':meanmax, 'meansum':meansum}
 
     metaData['pixels'] = pixelizeSpectrogram(waterfall)
     
     def LargeVals(ddarr):
         arrmax = np.amax(ddarr)
-        idxmax = argwhere(ddarr > 0.1*arrmax)
+        idxmax = np.argwhere(ddarr > 0.1*arrmax)
         largerange = np.amax(idxmax) - np.amin(idxmax)
         largecount = idxmax.flatten().size
         
         return {'largerange':largerange, 'largecount':largecount}
+   
+    metaData['LargeVals'] = LargeVals(ddTimeSeries)
         
             
     def AveragePulseMetrics(ddarr):
@@ -347,24 +345,26 @@ if __name__ == '__main__': #if this is being run as the main program (ie. not ca
         corridxmin = 0
         corridxmean = 0
         
-        slicepulseft = np.load('/home/inigo/slicepulseft.npy')
+        slicepulseft = np.load('./slicepulseft.npy')
         argmax = np.argmax(ddarr)
-            ddarrslice = ddarr[argmax-2050:argmax+2050]
-            if ddarslice.shape == slicepulse:
-                ddarrft = np.fft.fft(ddarr)
-                corr = np.fft.ifft(ddarrft*slicepulseft)
-                for i in range(5):
-                    corridx[i] = np.argmax(corr)
-                    corrvals[i] = np.amax(corr)
-                    corr(corridx[i]) = 0
-                
-                corrvalmax = np.amax(corrvals)
-                corrvalmin = np.amin(corrvals)
-                corrvalmean = np.median(corrvals)
-                
-                corridxmax = np.amax(corridx)
-                corridxmin = np.amin(corridx)
-                corridxmean = np.median(corridx)
+        ddarrslice = ddarr[argmax-2050:argmax+2050]
+        if ddarrslice.shape == slicepulseft.shape:            
+            ddarrft = np.fft.fft(ddarrslice)
+            corr = np.fft.ifft(ddarrft*slicepulseft)
+            print corr.shape
+            for i in range(5):
+                corridx[i] = np.argmax(corr)
+                corrvals[i] = np.amax(corr)
+                index = int(corridx[i])
+                corr[index] = 0
+
+                corrvalmax = int(np.amax(corrvals))
+                corrvalmin = int(np.amin(corrvals))
+                corrvalmean = int(np.median(corrvals))
+
+                corridxmax = int(np.amax(corridx))
+                corridxmin = int(np.amin(corridx))
+                corridxmean = int(np.median(corridx))
         
         """TOO COMPUTATIONALLY INTENSIVE, REPLACED WITH CROSS CORRELATION OF IMPORTANT SEGMENT OF TIME SERIES
         avgpulse = np.load('/home/inigo/eigenpulse.npy')
@@ -386,13 +386,13 @@ if __name__ == '__main__': #if this is being run as the main program (ie. not ca
     
     
         
-    def SineFit(arr)        
+    def SineFit(arr):        
         
-        t = np.arange(arr)
+        t = np.arange(arr.size)
         y = arr
         '''Fit sin to the input time sequence, and return fitting parameters "amp", "omega", "phase", "offset", "freq", "period" and "fitfunc"'''
         #Discrete Fourier transform:
-        ft = np.fft.fftfreq(len(tt), (tt[1]-tt[0]))
+        ft = np.fft.fftfreq(len(t), (t[1]-t[0]))
         
         Fy = abs(np.fft.fft(y))
 
@@ -406,15 +406,16 @@ if __name__ == '__main__': #if this is being run as the main program (ie. not ca
             return A * numpy.sin(w*t + p) + c
 
         popt, pcov = scipy.optimize.curve_fit(sinfunc, t, y, p0=guess)
-        A, w, p, c = popt
-        fitfunc = lambda t: A * numpy.sin(w*t + p) + c        
+        A, w, p, c = popt       
         f = w/(2.*numpy.pi)
-
-        chisq = (arr - fitfunc(np.arange(arr)**2)/fitfunc(np.arange(arr))
+        
+        sincurve = sinfunc(t, A, w, p, c)
+        chisqu = (arr - sincurve)**2/abs(sincurve)
+        chisqu = np.sum(chisqu)
             
-    return {'amp': A, 'frequency': f, 'phase': p, 'offset': c, 'period': 1./f, 'maxcov': np.max(pcov), 'chisq':chisq}
+        return {'amp':A ,'frequency':f ,'phase':p, 'offset': c, 'period': 1./f, 'maxcov': np.max(pcov), 'chisqu':chisqu}
                  
-    metaData['SineFit'] = SineFit[arr]
+    metaData['SineFit'] = SineFit(timeSeries)
              
                                                
     if not (opts.meta is None):
