@@ -127,8 +127,7 @@ if __name__ == '__main__': #if this is being run as the main program (ie. not ca
         dpearson = scipy.stats.normaltest(arr) #dagostino-pearson
         dpearsonomni = dpearson[0]
         dpearsonp = dpearson[1]
-        
-        lilliefors = statsmodels.stats.diagnostic.kstest_normal(arr, pvalmethod='approx') #Lilliefors test (KS test but with estimated mean and variance, only useful for p<0.2 or boolean for p>0.2
+        lilliefors = statsmodels.stats.diagnostic.kstest_normal(arr, pvalmethod='approx')
         lsD = lilliefors[0]
         lsp = lilliefors[1]
              
@@ -151,24 +150,24 @@ if __name__ == '__main__': #if this is being run as the main program (ie. not ca
 
         #takes sidth segment and assigns value for that segment to sidth element of value array
         #put KS testing in here too?
-        lfpsum = 0
-        lfpmax = 0
-        lfDmax = 0
-        lfDmin = 1
+        swpthreshsum = 0
+        swpmax = 0
+        swamax = 0
+        swamin = 100
         for sid in np.arange(nseg):
             segarr = arr[segSize*sid:segSize*(sid+1)]
             dpearson[sid] = np.asarray(scipy.stats.normaltest(segarr))
-            lilliefors = np.asarray(statsmodels.stats.diagnostic.kstest_normal(segarr, pvalmethod='approx')) #can you store arrays inside arrays?
-            if lilliefors[1] > 0.1:
-                lfpsum += 1 #total number of segments with p>0.1
-            if lilliefors[1] > lfpmax:
-                lfpmax= lilliefors[1]
-            if lilliefors[0] > lfDmax:
-                lfDmax = lilliefors[0]
-            if lilliefors[0] < lfDmin:
-                lfDmin = lilliefors[0]
+            segsw = scipy.stats.shapiro(segarr)
+            sw[sid] = segsw
+            if segsw[1] > 0.1:
+                swpthreshsum += 1 #total number of segments with p>0.1
+            if segsw[1] > swpmax:
+                swpmax = segsw[1]
+            if segsw[0] > swamax:
+                swamax = segsw[0]
+            if segsw[0] < swamin:
+                swamin = segsw[0]
             
-            sw[sid] = scipy.stats.shapiro(segarr)
          
                       
         swsum = np.sum(sw, axis=0)
@@ -179,7 +178,7 @@ if __name__ == '__main__': #if this is being run as the main program (ie. not ca
         dpearsonomnisum = dpearsonsum[0]
         dpearsonpsum = dpearsonsum[1]
     
-        return { 'lillieforsmaxp': lfpmax, 'lillieforsmaxD': lfDmax, 'lfDmin': lfDmin, 'lillieforssum': lfpsum, 'dpearsonomnisum': dpearsonomnisum, 'dpearsonpsum': dpearsonpsum, 'swpsum' : swpsum, 'swasum' : swasum}
+        return { 'swpmax': swpmax, 'swamax': swamax, 'swamin': swamin, 'swpthreshsum': swpthreshsum, 'dpearsonomnisum': dpearsonomnisum, 'dpearsonpsum': dpearsonpsum, 'swpsum' : swpsum, 'swasum' : swasum}
     
     metaData['segGaussianTests'] = segGaussianTests(timeSeries)
     metaData['ddsegGaussianTests'] = segGaussianTests(ddTimeSeries)
@@ -326,11 +325,19 @@ if __name__ == '__main__': #if this is being run as the main program (ie. not ca
     
     def LargeVals(ddarr):
         arrmax = np.amax(ddarr)
-        idxmax = np.argwhere(ddarr > 0.1*arrmax)
-        largerange = np.amax(idxmax) - np.amin(idxmax)
-        largecount = idxmax.flatten().size
         
-        return {'largerange':largerange, 'largecount':largecount}
+        # 10%
+        idxlarge = np.argwhere(ddarr > 0.1*arrmax)
+        largerange10 = np.amax(idxlarge) - np.amin(idxlarge)
+        largecount10 = idxmax.flatten().size
+        
+        # 50%
+        idxlarge = np.argwhere(ddarr > 0.5*arrmax)
+        largerange50 = np.amax(idxlarge) - np.amin(idxlarge)
+        largecount50 = idxmax.flatten().size
+
+        
+        return {'largerange10':largerange, 'largecount10':largecount, 'largerange50':largerange, 'largecount50':largecount}
    
     metaData['LargeVals'] = LargeVals(ddTimeSeries)
         
